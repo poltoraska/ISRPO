@@ -142,7 +142,7 @@ def create_gui():
     ttk.Button(theme_frame, text="Светлая", command=lambda: apply_theme("light")).grid(row=0, column=1, padx=5)
     ttk.Button(theme_frame, text="Тёмная", command=lambda: apply_theme("dark")).grid(row=0, column=2, padx=5)
 
-    apply_theme("light")  # Устанавливаем начальную тему
+    apply_theme("light")
 
     root.mainloop()
 
