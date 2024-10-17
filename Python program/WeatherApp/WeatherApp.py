@@ -4,6 +4,8 @@ import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
 import datetime
+import os
+import ttkbootstrap as tb
 
 translate_dict = {
     "clear sky": "ясно",
@@ -39,8 +41,19 @@ def get_greeting():
     else:
         return "Доброй ночи"
 
+def save_data(name, city):
+    data = {"name": name, "city": city}
+    with open("user_data.json", "w") as file:
+        json.dump(data, file)
+
+def load_data():
+    if os.path.exists("user_data.json"):
+        with open("user_data.json", "r") as file:
+            return json.load(file)
+    return {"name": "", "city": ""}
+
 def create_gui():
-    root = tk.Tk()
+    root = tb.Window(themename="flatly")
     root.title("Прогноз погоды")
     root.geometry("400x600")
 
@@ -54,18 +67,22 @@ def create_gui():
             entry_bg = "#3c3f41"
             button_bg = "#3c3f41"
             button_fg = "#ffffff"
-            style.configure('TButton', background=button_bg, foreground=button_fg, borderwidth=1)
-            style.map('TButton', background=[('active', button_bg)])
             name_entry.config(bg=entry_bg, fg=fg_color, insertbackground=fg_color)
             city_entry.config(bg=entry_bg, fg=fg_color, insertbackground=fg_color)
             style.configure('TLabel', background=bg_color, foreground=fg_color)
         else:
-            bg_color = "#ffffff"
+            bg_color = "#eeedf4"
             fg_color = "#000000"
             entry_bg = "#ffffff"
-            button_bg = "#f0f0f0"
-            button_fg = "#000000"
-            style.configure('TButton', background=button_bg, foreground=button_fg, borderwidth=1)
+            button_bg = "#65568f"
+            button_fg = "#ffffff"
+            style.configure('TButton',
+                            background=button_bg,
+                            foreground=button_fg,
+                            padding=10,
+                            relief="flat",
+                            bordercolor=button_bg,
+                            borderradius=20)  # Закругляем края кнопки
             style.map('TButton', background=[('active', button_bg)])
             name_entry.config(bg=entry_bg, fg=fg_color, insertbackground=fg_color)
             city_entry.config(bg=entry_bg, fg=fg_color, insertbackground=fg_color)
@@ -83,14 +100,18 @@ def create_gui():
         weather_frame.config(background=bg_color)
         theme_frame.config(background=bg_color)
 
+    user_data = load_data()
+
     name_label = ttk.Label(root, text="Ваше имя:", font=("Helvetica", 14))
     name_label.pack(pady=10)
     name_entry = tk.Entry(root, font=("Helvetica", 14))
     name_entry.pack(pady=10)
+    name_entry.insert(0, user_data["name"])
 
     def get_weather_button():
         name = name_entry.get()
         city = city_entry.get()
+        save_data(name, city)
         greeting = get_greeting()
         greeting_label.config(text=f"{greeting}, {name}!")
         weather_data = get_weather(city)
@@ -114,6 +135,7 @@ def create_gui():
     city_label.pack(pady=10)
     city_entry = tk.Entry(root, font=("Helvetica", 14))
     city_entry.pack(pady=10)
+    city_entry.insert(0, user_data["city"])
 
     greeting_label = ttk.Label(root, text="", font=("Roboto", 24))
     greeting_label.pack(pady=10)
@@ -142,10 +164,9 @@ def create_gui():
     ttk.Button(theme_frame, text="Светлая", command=lambda: apply_theme("light")).grid(row=0, column=1, padx=5)
     ttk.Button(theme_frame, text="Тёмная", command=lambda: apply_theme("dark")).grid(row=0, column=2, padx=5)
 
-    apply_theme("light")
+    apply_theme("light")  # Устанавливаем начальную тему
 
     root.mainloop()
-
 
 if __name__ == "__main__":
     create_gui()
